@@ -4,13 +4,16 @@ from llm.prompts import EXTRACTOR_PROMPT
 from pydantic import BaseModel
 
 class SchemaForExtraction(BaseModel):
-    intent: str
+    order_id: str 
+    customer_email: str 
+    item_name: str 
 
 def extractor_agent(state: TriageState) -> dict:
     client = get_llm_client()
     
     text = state["raw_text"]
     
+    # Chain with structured output
     chain = EXTRACTOR_PROMPT | client.with_structured_output(SchemaForExtraction)
     
     response = chain.invoke({"raw_text": text})
