@@ -6,6 +6,11 @@ def response_agent(state: TriageState) -> dict:
 
     client=get_llm_client() 
 
-    response =client.invoke(RESPONSE_PROMPT.format(**state.model_dump()))    
+    chain=RESPONSE_PROMPT | client
 
+    response =chain.invoke(RESPONSE_PROMPT.format(**state.model_dump()))    
+     
     return {"final_customer_reply": response.content}
+
+
+
