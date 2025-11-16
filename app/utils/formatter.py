@@ -1,9 +1,10 @@
 from graph_state import TriageState
 import logging 
+from typing import Dict
 
 logger = logging.getLogger(__name__)
 
-def final_formatter(state: TriageState) -> str:
+def final_formatter(state: TriageState) -> Dict:
     """
     This is the final node in the graph. It takes the complete state
     and formats a clean JSON output for the API.
@@ -14,7 +15,10 @@ def final_formatter(state: TriageState) -> str:
     intent = state.get("intent")
     order_id = state.get("extracted_data", {}).get("order_id")
     customer_email = state.get("extracted_data", {}).get("customer_email")
-    final_reply = state.get("final_reply")
+    enrichment = state.get("enrichment")
+    email_status = state.get("email_sent")
+    customer_reply_text = state.get("final_customer_reply")
+
 
     # Handle the gneral inquiry case
     if intent == "general_inquiry":
@@ -24,7 +28,9 @@ def final_formatter(state: TriageState) -> str:
             "intent": intent,
             "order_id": None,
             "customer_email": customer_email,
-            "response_sent": final_reply
+            "enrichment_data": None,
+            "response_sent": email_status,
+            "customer_reply": customer_reply_text
         }
     else:
         logger.info("Handling order-related inquiry")
@@ -33,8 +39,9 @@ def final_formatter(state: TriageState) -> str:
             "intent": intent,
             "order_id": order_id,
             "customer_email": customer_email,
-            "enrichment_data": state.get("enrichment_data"), # attach enrichment data if any
-            "response_sent": final_reply
+            "enrichment_data": enrichment, # attach enrichment data if any
+            "response_sent": email_status,
+            "customer_reply": customer_reply_text
         }
 
     return {"final_output": output }
